@@ -1,0 +1,58 @@
+name: Deploy Aksharam to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Prevent an accidental manual deployment of another branch.
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+      - name: Set up Node.js LTS
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Run tests
+        run: npm test
+      - name: Lint
+        run: npm run lint
+      - name: Check types
+        run: npm run typecheck
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Export static site
+        run: npm run build
+      - name: Verify exported routes and assets
+        run: npm run check:export
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

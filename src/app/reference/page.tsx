@@ -1,0 +1,260 @@
+"use client";
+import { useRef, useState, useEffect } from "react";
+import Link from "next/link";
+import { Search, X, Bookmark, ArrowRight, Info } from "lucide-react";
+import { categories, letters, sources } from "@/data/alphabet";
+import { useProgress } from "@/hooks/use-progress";
+import type { Letter, Category } from "@/types";
+import { PageHeading } from "@/components/ui";
+import { LetterGrid } from "@/components/letter-grid";
+import { AudioButton } from "@/components/audio-button";
+export default function Reference() {
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState<Category | "all">("all");
+  const [selected, setSelected] = useState<Letter | null>(null);
+  const [rare, setRare] = useState(true);
+  const dialog = useRef<HTMLDialogElement>(null);
+  const { progress, favorite } = useProgress();
+  useEffect(() => {
+    if (selected) {
+      dialog.current?.showModal();
+    } else dialog.current?.close();
+  }, [selected]);
+  const query = search.toLocaleLowerCase().normalize("NFC");
+  const filtered = letters.filter(
+    (l) =>
+      (category === "all" || l.category === category) &&
+      (rare || l.usage === "core") &&
+      [l.glyph, l.romanization, l.approximation ?? "", l.note, l.subgroup].some(
+        (v) => v.toLocaleLowerCase().normalize("NFC").includes(query),
+      ),
+  );
+  return (
+    <>
+      <PageHeading
+        eyebrow="A WORLD OF LETTERS"
+        title="Meet the Malayalam alphabet."
+        description="A place to explore, compare, and come back to. Every shape has a story."
+      />
+      <div className="reference-intro">
+        <div>
+          <span className="eyebrow">A NOTE BEFORE YOU BEGIN</span>
+          <h3>Letters, sounds, and the spaces between.</h3>
+          <p>
+            Malayalam is an abugida: a consonant such as{" "}
+            <span lang="ml">ക</span> (ka) includes a short a. A vowel sign
+            changes it: <span lang="ml">കാ</span> (kā). A virama joins
+            consonants, as in <span lang="ml">ക്ക</span> (kka), or removes that
+            inherent vowel.
+          </p>
+        </div>
+        <div className="intro-example" lang="ml">
+          <span>
+            ക<small>ka</small>
+          </span>
+          <b>+</b>
+          <span>
+            ◌ാ<small>ā sign</small>
+          </span>
+          <b>=</b>
+          <span>
+            കാ<small>kā</small>
+          </span>
+        </div>
+      </div>
+      <div className="reference-controls">
+        <div className="search-box">
+          <Search size={19} />
+          <label className="sr-only" htmlFor="letter-search">
+            Search the alphabet
+          </label>
+          <input
+            id="letter-search"
+            placeholder="Find a letter, sound, or romanization…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          {search && (
+            <button aria-label="Clear search" onClick={() => setSearch("")}>
+              <X size={17} />
+            </button>
+          )}
+        </div>
+        <label className="checkbox-label">
+          <input
+            type="checkbox"
+            checked={rare}
+            onChange={(e) => setRare(e.target.checked)}
+          />{" "}
+          Show uncommon & historic
+        </label>
+      </div>
+      <div
+        className="filter-tabs"
+        role="group"
+        aria-label="Filter alphabet by category"
+      >
+        <button
+          className={category === "all" ? "active" : ""}
+          onClick={() => setCategory("all")}
+        >
+          All collections
+        </button>
+        {categories.map((c) => (
+          <button
+            key={c.id}
+            className={category === c.id ? "active" : ""}
+            onClick={() => setCategory(c.id)}
+          >
+            {c.name}
+          </button>
+        ))}
+      </div>
+      <div className="reference-count">
+        {filtered.length} entries · click any letter to get to know it
+      </div>
+      {!filtered.length && (
+        <div className="empty-state">
+          <Search size={28} />
+          <h2>No letters found.</h2>
+          <p>
+            Try a glyph, an accented romanization, or a sound like “retroflex”.
+          </p>
+        </div>
+      )}
+      {categories
+        .filter((c) => filtered.some((l) => l.category === c.id))
+        .map((c) => (
+          <section className="reference-group" key={c.id}>
+            <div className="section-header">
+              <div>
+                <h2>
+                  {c.name}
+                  <span lang="ml">{c.malayalam}</span>
+                </h2>
+                <p>
+                  {c.description}
+                  {c.id === "signs"
+                    ? " · Dotted circles are placeholders, not part of the sign."
+                    : c.id === "conjuncts"
+                      ? " · A selected practice set, not a complete list of combinations."
+                      : ""}
+                </p>
+              </div>
+              <span className={`count-badge ${c.color}`}>
+                {filtered.filter((l) => l.category === c.id).length} entries
+              </span>
+            </div>
+            <LetterGrid
+              letters={filtered.filter((l) => l.category === c.id)}
+              onSelect={setSelected}
+            />
+          </section>
+        ))}
+      <div className="reference-notes panel">
+        <Info size={22} />
+        <div>
+          <h3>How many letters are there?</h3>
+          <p>
+            Counts vary with convention: modern core letters, Sanskrit vocalic
+            forms, chillus, and historical characters may be counted
+            differently. Vowel signs are dependent marks; conjuncts are
+            combinations, so there is no finite list of every possible “letter.”
+            Numerals, fractions, and measurement symbols are outside this
+            learning deck.
+          </p>
+          <p>
+            Romanization uses ISO 15919-style distinctions. English sound cues
+            are approximate; they do not replace listening to a native speaker.
+            Historic signs without a settled teaching romanization use a
+            descriptive notation.
+          </p>
+          <div className="source-links">
+            {sources.map((s) => (
+              <a key={s.url} href={s.url} target="_blank" rel="noreferrer">
+                {s.name} ↗
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+      <dialog
+        ref={dialog}
+        className="letter-dialog"
+        onCancel={() => setSelected(null)}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) setSelected(null);
+        }}
+      >
+        {selected && (
+          <>
+            <div className="dialog-top">
+              <span className="eyebrow">
+                {categories.find((c) => c.id === selected.category)?.name} ·{" "}
+                {selected.usage}
+              </span>
+              <button
+                className="icon-button"
+                aria-label="Close letter details"
+                onClick={() => setSelected(null)}
+              >
+                <X size={21} />
+              </button>
+            </div>
+            <span className="detail-glyph" lang="ml">
+              {selected.display}
+            </span>
+            <h2>{selected.romanization}</h2>
+            {selected.approximation && (
+              <p className="pronunciation">{selected.approximation}</p>
+            )}
+            <div className="detail-note">
+              <strong>{selected.subgroup}</strong>
+              <p>{selected.note}</p>
+            </div>
+            {selected.category === "signs" && (
+              <p className="combined-example" lang="ml">
+                ക + {selected.display} → ക{selected.glyph}
+              </p>
+            )}
+            <AudioButton key={selected.id} letter={selected} />
+            <div className="button-row">
+              <button
+                className="button secondary"
+                onClick={() => favorite(selected.id)}
+              >
+                <Bookmark
+                  size={17}
+                  fill={
+                    progress.favorites.includes(selected.id)
+                      ? "currentColor"
+                      : "none"
+                  }
+                />
+                {progress.favorites.includes(selected.id)
+                  ? "Saved for review"
+                  : "Save for review"}
+              </button>
+              <Link
+                className="button primary"
+                href={`/flashcards?deck=${selected.category}`}
+                onClick={() => setSelected(null)}
+              >
+                Study collection <ArrowRight size={16} />
+              </Link>
+            </div>
+            <small className="unicode-note">
+              Unicode:{" "}
+              {Array.from(selected.glyph)
+                .map(
+                  (c) =>
+                    `U+${c.codePointAt(0)!.toString(16).toUpperCase().padStart(4, "0")}`,
+                )
+                .join(" · ")}
+            </small>
+          </>
+        )}
+      </dialog>
+    </>
+  );
+}
