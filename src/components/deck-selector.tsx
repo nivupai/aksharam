@@ -25,9 +25,7 @@ export function DeckSelector({
           </option>
         ))}
         <option value="all">All cards</option>
-        {review && (
-          <option value="review">Custom review · due & bookmarked</option>
-        )}
+        {review && <option value="review">Custom review</option>}
       </select>
     </div>
   );

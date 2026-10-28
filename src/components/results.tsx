@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, RotateCcw, Sprout } from "lucide-react";
+import { ArrowRight, RotateCcw } from "lucide-react";
 import { categories } from "@/data/alphabet";
 import { score, type Answer } from "@/lib/quiz";
 export function Results({
@@ -17,16 +17,14 @@ export function Results({
   return (
     <div className="results">
       <div className="results-header panel">
-        <Sprout size={32} />
-        <div className="eyebrow">A LITTLE PROGRESS, WELL EARNED</div>
-        <h2>{lesson ? "Lesson complete." : "Your practice, reflected."}</h2>
+        <h2>{lesson ? "Lesson results" : "Test results"}</h2>
         <div className="result-score">
           {score(answers)}
           <span>%</span>
         </div>
         <p>
           {answers.filter((a) => a.correct).length} correct out of{" "}
-          {answers.length} attempts. Every answer is a little more familiar.
+          {answers.length} attempts.
         </p>
         <div className="button-row">
           {incorrect.length > 0 && (

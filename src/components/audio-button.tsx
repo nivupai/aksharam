@@ -75,7 +75,7 @@ export function AudioButton({ letter }: { letter: Letter }) {
               ? "Listen"
               : voice
                 ? "Browser voice"
-                : "Audio coming soon"}
+                : "Audio unavailable"}
         </span>
       </button>
       {message && <span role="status">{message}</span>}

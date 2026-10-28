@@ -25,7 +25,7 @@ export function Flashcards() {
   return ready ? (
     <FlashcardsSession />
   ) : (
-    <p className="muted">Getting your cards ready…</p>
+    <p className="muted">Loading flashcards…</p>
   );
 }
 function FlashcardsSession() {
@@ -147,9 +147,8 @@ function FlashcardsSession() {
   return (
     <>
       <PageHeading
-        eyebrow="MAKE YOURSELF FAMILIAR"
-        title="One letter. A little closer."
-        description="Take your time, turn a card, and let the shapes become familiar."
+        title="Flashcards"
+        description="Tap a card to flip. Swipe left or right to change cards."
       />
       <div className="study-layout">
         <section className="study-main" aria-label="Flashcard study">
@@ -212,7 +211,7 @@ function FlashcardsSession() {
                   />
                   {progress.favorites.includes(letter.id)
                     ? "Bookmarked"
-                    : "Save for later"}
+                    : "Bookmark"}
                 </button>
               </div>
               <Card
@@ -221,26 +220,30 @@ function FlashcardsSession() {
                 flipped={flipped}
                 onFlip={flip}
                 reverse={reverse}
+                onNavigate={navigate}
               />
-              <div className="card-navigation">
-                <button
-                  className="round-button"
-                  aria-label="Previous card"
-                  onClick={() => navigate(-1)}
-                >
-                  <ArrowLeft size={20} />
-                </button>
-                <span>
-                  <strong>{(index % cards.length) + 1}</strong> / {cards.length}{" "}
-                  cards
-                </span>
-                <button
-                  className="round-button"
-                  aria-label="Next card"
-                  onClick={() => navigate(1)}
-                >
-                  <ArrowRight size={20} />
-                </button>
+              <div className="card-controls">
+                <div className="card-navigation">
+                  <button
+                    className="round-button"
+                    aria-label="Previous card"
+                    onClick={() => navigate(-1)}
+                  >
+                    <ArrowLeft size={20} />
+                  </button>
+                  <span>
+                    <strong>{(index % cards.length) + 1}</strong> /{" "}
+                    {cards.length} cards
+                  </span>
+                  <button
+                    className="round-button"
+                    aria-label="Next card"
+                    onClick={() => navigate(1)}
+                  >
+                    <ArrowRight size={20} />
+                  </button>
+                </div>
+                <AudioButton key={letter.id} letter={letter} />
               </div>
               <ProgressBar
                 value={((index + 1) / cards.length) * 100}
@@ -263,15 +266,14 @@ function FlashcardsSession() {
                   ))}
                 </div>
                 <p className="save-feedback" role="status">
-                  {feedback ||
-                    "Your honest rating helps us find the right time to review."}
+                  {feedback || "Ratings set the next review date."}
                 </p>
               </div>
             </>
           ) : (
             <div className="empty-state">
               <Check size={32} />
-              <h2>A little breathing room.</h2>
+              <h2>No review cards</h2>
               <p>
                 No cards in this review deck. Bookmark letters or come back when
                 a review is due.
@@ -280,7 +282,7 @@ function FlashcardsSession() {
                 className="button primary"
                 onClick={() => changeDeck("vowels")}
               >
-                Explore vowels <ArrowRight size={17} />
+                Study vowels <ArrowRight size={17} />
               </button>
             </div>
           )}
@@ -299,10 +301,8 @@ function FlashcardsSession() {
         </section>
         <aside className="study-aside">
           <div className="panel study-tip">
-            <div className="section-caption">
-              <LeafIcon /> A LITTLE LANGUAGE NOTE
-            </div>
-            <h3>Longer is different.</h3>
+            <div className="section-caption">VOWEL LENGTH</div>
+            <h3>Short and long vowels</h3>
             <div className="tip-glyphs" lang="ml">
               അ <span>→</span> ആ
             </div>
@@ -311,19 +311,9 @@ function FlashcardsSession() {
               partner can change a word’s meaning.
             </p>
             <Link href="/reference">
-              Explore the alphabet <ArrowRight size={15} />
+              Alphabet reference <ArrowRight size={15} />
             </Link>
           </div>
-          {letter && (
-            <div className="panel audio-panel">
-              <h3>Find the sound</h3>
-              <p>
-                Read the pronunciation tip on the back. Native recordings can be
-                added as they become available.
-              </p>
-              <AudioButton key={letter.id} letter={letter} />
-            </div>
-          )}
           <div className="keyboard-guide">
             <Keyboard size={18} />
             <span>
@@ -335,13 +325,10 @@ function FlashcardsSession() {
           </div>
           <Link href="/learn" className="quiet-link">
             <Layers size={16} />
-            Prefer a little guidance? Try Learn <ArrowRight size={16} />
+            Guided lessons <ArrowRight size={16} />
           </Link>
         </aside>
       </div>
     </>
   );
-}
-function LeafIcon() {
-  return <span aria-hidden="true">✦</span>;
 }

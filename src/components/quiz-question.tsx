@@ -113,11 +113,7 @@ export function QuizQuestion({
         >
           <div>
             {correct ? <Check size={21} /> : <X size={21} />}
-            <strong>
-              {correct
-                ? "That’s the one."
-                : "A little more practice, and it’ll stick."}
-            </strong>
+            <strong>{correct ? "Correct" : "Incorrect"}</strong>
           </div>
           <p>
             <strong>

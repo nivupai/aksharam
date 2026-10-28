@@ -1,6 +1,6 @@
 # Aksharam · അക്ഷരം
 
-A warm, focused Malayalam script learning app for English-speaking beginners. Built locally with Next.js App Router, React, strict TypeScript, Tailwind CSS, and Lucide. No account, database, paid API, or backend required.
+A Malayalam script learning app for English-speaking beginners. Built locally with Next.js App Router, React, strict TypeScript, Tailwind CSS, and Lucide. No account, database, paid API, or backend required.
 
 ## Run locally
 
@@ -45,7 +45,7 @@ The development and build scripts use Next.js's supported `--webpack` flag becau
 | Left / Right  | Previous / next card                                                          |
 | 1 / 2 / 3 / 4 | Again / Hard / Good / Easy                                                    |
 
-Shortcuts do not intercept typing or select fields. Card ratings automatically advance except at the last card; the final card remains available for inspection. Navigation wraps. A card counts as introduced when revealed, read in a lesson, or answered/rated.
+Swipe left/right on a flashcard to navigate; vertical scrolling and pinch zoom remain available. Touch controls are at least 44 CSS pixels. Shortcuts do not intercept typing or select fields. Card ratings automatically advance except at the last card; the final card remains available for inspection. Navigation wraps. A card counts as introduced when revealed, read in a lesson, or answered/rated.
 
 Typing answers are normalized to Unicode NFC, lowercased, trimmed, and have internal whitespace collapsed. **Diacritics are preserved**: `a` and `ā`, `n` and `ṇ`, and `l`, `ḷ`, and `ḻ` are different. No guessed ASCII aliases are accepted. Use an OS accent picker or paste accented Latin text, or choose the keyboard-free recognition modes. No Malayalam keyboard is required.
 
@@ -123,7 +123,7 @@ UI and linguistic data are separate. The pure progress functions and shared prov
 
 Automated checks cover dataset metadata and Unicode, dental/retroflex separation, atomic chillus and graphemes, scheduling and mastery, local-calendar streaks, valid/corrupt/blocked storage, import validation, scoring and accent normalization, card flip, keyboard rating persistence after hydration, quiz completion, and missed-letter reintroduction.
 
-Validation: 22 tests pass; lint, strict TypeScript checks, production static export, and the HTTP export check pass. Deployment tests cover the shared base path, future audio URLs, and restoring ratings, bookmarks, and preferences after the provider remounts. The lesson page has been visually inspected in Chrome, including Malayalam font rendering and the unavailable audio state. A full mobile browser interaction pass remains a manual follow-up.
+Validation: 27 tests pass; lint, strict TypeScript checks, production static export, and the HTTP export check pass. Deployment tests cover the shared base path, future audio URLs, and restoring ratings, bookmarks, and preferences after the provider remounts. Visual verification of this refinement in mobile browsers remains pending because Chrome automation was interrupted. See [mobile refinement verification](docs/MOBILE_REVIEW.md) for implementation details, automation limits, and the viewport/device checklist.
 
 Manual smoke checklist:
 

@@ -102,16 +102,11 @@ export function Practice({ lesson = false }: { lesson?: boolean }) {
   return (
     <>
       <PageHeading
-        eyebrow={
-          lesson ? "SMALL STEPS, STRONG FOUNDATIONS" : "A FRIENDLY CHECK-IN"
-        }
-        title={
-          lesson ? "Let’s make it familiar." : "See what’s staying with you."
-        }
+        title={lesson ? "Learn" : "Test"}
         description={
           lesson
-            ? "Meet a few letters, find their sounds, and bring them back to mind."
-            : "A little recall goes a long way. No Malayalam keyboard needed."
+            ? "Read each letter, then answer recognition and recall questions."
+            : "Choose question types. No Malayalam keyboard is required."
         }
       />
       {phase === "setup" ? (
@@ -120,13 +115,11 @@ export function Practice({ lesson = false }: { lesson?: boolean }) {
             <div className={`setup-icon ${lesson ? "sage" : "peach"}`}>
               {lesson ? <BookOpen size={28} /> : <Check size={28} />}
             </div>
-            <h2>
-              {lesson ? "Your next little lesson" : "Make this practice yours"}
-            </h2>
+            <h2>{lesson ? "Lesson setup" : "Test setup"}</h2>
             <p>
               {lesson
-                ? `Up to ${progress.preferences.lessonSize} letters. A moment to read, then a little recognition and recall. Due reviews come first.`
-                : "Choose a collection and a way to practice. We’ll explain every answer as you go."}
+                ? `Up to ${progress.preferences.lessonSize} letters. Reading, recognition, and recall. Due reviews come first.`
+                : "Choose a collection, question count, and question types."}
             </p>
             <DeckSelector value={deck} onChange={setDeck} review={false} />
             {!lesson && (
@@ -210,8 +203,8 @@ export function Practice({ lesson = false }: { lesson?: boolean }) {
           </section>
           <aside>
             <div className="panel learning-path">
-              <div className="section-caption">YOUR LEARNING PATH</div>
-              <h3>A script, step by step.</h3>
+              <div className="section-caption">LESSON ORDER</div>
+              <h3>Collections</h3>
               {categories.map((c, i) => (
                 <button
                   className={deck === c.id ? "path-step current" : "path-step"}
@@ -236,7 +229,7 @@ export function Practice({ lesson = false }: { lesson?: boolean }) {
               <p>
                 {lesson
                   ? "Reading comes first. Then recognition and recall. Missed letters return once more before the lesson ends."
-                  : "Results include your answers, explanations, and a chance to revisit just the letters you missed."}
+                  : "Results include explanations and a retry option for missed letters."}
               </p>
             </div>
           </aside>
@@ -275,8 +268,7 @@ export function Practice({ lesson = false }: { lesson?: boolean }) {
               End session
             </button>
             <span>
-              {lesson ? "A LITTLE LESSON" : "YOUR PRACTICE"} · Step {index + 1}{" "}
-              of {steps.length}
+              {lesson ? "LESSON" : "TEST"} · Step {index + 1} of {steps.length}
             </span>
           </div>
           <ProgressBar
@@ -285,7 +277,7 @@ export function Practice({ lesson = false }: { lesson?: boolean }) {
           />
           {step?.kind === "read" ? (
             <div className="panel reading-card" key={index}>
-              <span className="eyebrow">MEET YOUR NEXT LETTER</span>
+              <span className="eyebrow">READ THE LETTER</span>
               <span className="reading-glyph" lang="ml">
                 {step.letter.display}
               </span>
@@ -302,7 +294,7 @@ export function Practice({ lesson = false }: { lesson?: boolean }) {
                   next();
                 }}
               >
-                I’ve met this letter <ArrowRight size={18} />
+                Continue to next letter <ArrowRight size={18} />
               </button>
             </div>
           ) : step?.kind === "question" ? (

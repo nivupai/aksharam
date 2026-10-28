@@ -54,23 +54,17 @@ export default function SettingsPage() {
   }
   return (
     <>
-      <PageHeading
-        eyebrow="MAKE ROOM FOR YOUR RHYTHM"
-        title="A little more personal."
-        description="Set a comfortable pace and keep your learning journey in your hands."
-      />
+      <PageHeading title="Settings" />
       <div className="settings-grid">
         <section className="panel settings-panel">
           <div className="settings-title">
             <Settings size={22} />
-            <h2>Your study rhythm</h2>
+            <h2>Study preferences</h2>
           </div>
           <label className="setting-row" htmlFor="goal">
             <span>
               <strong>Daily practice goal</strong>
-              <small>
-                A gentle target, measured in rated cards and quiz answers.
-              </small>
+              <small>Rated cards and quiz answers per day.</small>
             </span>
             <select
               id="goal"
@@ -119,7 +113,7 @@ export default function SettingsPage() {
         <section className="panel settings-panel">
           <div className="settings-title">
             <ShieldCheck size={22} />
-            <h2>Your progress, yours to keep</h2>
+            <h2>Progress backups</h2>
           </div>
           <p>
             Your learning history stays in this browser’s local storage. Export
@@ -149,7 +143,7 @@ export default function SettingsPage() {
           </div>
         </section>
         <section className="panel settings-panel">
-          <h2>A simple, thoughtful review system</h2>
+          <h2>Review schedule</h2>
           <p>
             Again returns in 10 minutes. Hard waits at least a day. Good starts
             at a day and doubles the previous interval. Easy starts at 3 days
@@ -168,7 +162,7 @@ export default function SettingsPage() {
           </p>
         </section>
         <section className="panel settings-panel reset-panel">
-          <h2>A fresh beginning</h2>
+          <h2>Reset progress</h2>
           <p>
             Reset all reviews, bookmarks, quiz history, and preferences on this
             browser. Export a backup first if you’d like to return to them.
@@ -183,7 +177,7 @@ export default function SettingsPage() {
               ) {
                 replace(emptyProgress());
                 setError(false);
-                setStatus("Your progress has been reset. A fresh beginning.");
+                setStatus("Progress has been reset.");
               }
             }}
           >

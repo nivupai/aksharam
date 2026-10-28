@@ -31,15 +31,10 @@ export default function Reference() {
   );
   return (
     <>
-      <PageHeading
-        eyebrow="A WORLD OF LETTERS"
-        title="Meet the Malayalam alphabet."
-        description="A place to explore, compare, and come back to. Every shape has a story."
-      />
+      <PageHeading title="Alphabet reference" />
       <div className="reference-intro">
         <div>
-          <span className="eyebrow">A NOTE BEFORE YOU BEGIN</span>
-          <h3>Letters, sounds, and the spaces between.</h3>
+          <h3>Inherent vowels and vowel signs</h3>
           <p>
             Malayalam is an abugida: a consonant such as{" "}
             <span lang="ml">ക</span> (ka) includes a short a. A vowel sign
@@ -70,7 +65,7 @@ export default function Reference() {
           </label>
           <input
             id="letter-search"
-            placeholder="Find a letter, sound, or romanization…"
+            placeholder="Search glyph, sound, or romanization"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -111,7 +106,7 @@ export default function Reference() {
         ))}
       </div>
       <div className="reference-count">
-        {filtered.length} entries · click any letter to get to know it
+        {filtered.length} entries · select a letter for details
       </div>
       {!filtered.length && (
         <div className="empty-state">
@@ -181,6 +176,7 @@ export default function Reference() {
       <dialog
         ref={dialog}
         className="letter-dialog"
+        aria-labelledby="letter-detail-title"
         onCancel={() => setSelected(null)}
         onClick={(e) => {
           if (e.target === e.currentTarget) setSelected(null);
@@ -204,7 +200,7 @@ export default function Reference() {
             <span className="detail-glyph" lang="ml">
               {selected.display}
             </span>
-            <h2>{selected.romanization}</h2>
+            <h2 id="letter-detail-title">{selected.romanization}</h2>
             {selected.approximation && (
               <p className="pronunciation">{selected.approximation}</p>
             )}

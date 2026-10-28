@@ -43,7 +43,7 @@ describe("learning interactions", () => {
       .find((b) => b.textContent?.endsWith(q.letter.romanization))!;
     await userEvent.click(option);
     expect(answer).toHaveBeenCalledWith(q.letter.id, true);
-    expect(screen.getByRole("status")).toHaveTextContent("That’s the one.");
+    expect(screen.getByRole("status")).toHaveTextContent("Correct");
     expect(option).toBeDisabled();
     await userEvent.click(screen.getByRole("button", { name: /Continue/ }));
     expect(next).toHaveBeenCalledOnce();
@@ -97,7 +97,7 @@ describe("learning interactions", () => {
       await userEvent.click(screen.getByRole("button", { name: /Continue/ }));
     }
     expect(
-      screen.getByRole("heading", { name: "Your practice, reflected." }),
+      screen.getByRole("heading", { name: "Test results" }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "Your answers" }),
@@ -115,16 +115,14 @@ describe("learning interactions", () => {
     await userEvent.click(screen.getByRole("button", { name: "Begin lesson" }));
     for (let i = 0; i < 5; i++)
       await userEvent.click(
-        screen.getByRole("button", { name: /I’ve met this letter/ }),
+        screen.getByRole("button", { name: /Continue to next letter/ }),
       );
     const wrong = screen
       .getAllByRole("button")
       .filter((b) => b.classList.contains("answer-option"))
       .find((b) => !b.textContent?.endsWith("a"))!;
     await userEvent.click(wrong);
-    expect(screen.getByRole("status")).toHaveTextContent(
-      "A little more practice",
-    );
+    expect(screen.getByRole("status")).toHaveTextContent("Incorrect");
     expect(screen.getByText(/Step 6 of 16/)).toBeInTheDocument();
   });
 });

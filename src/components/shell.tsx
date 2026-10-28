@@ -8,8 +8,6 @@ import {
   ClipboardCheck,
   Grid2X2,
   Settings,
-  ArrowUpRight,
-  Leaf,
   X,
 } from "lucide-react";
 import { ProgressProvider, useProgress } from "@/hooks/use-progress";
@@ -35,13 +33,13 @@ function Layout({ children }: { children: React.ReactNode }) {
             അ
           </span>
           <span>
-            aksharam
+            Aksharam
             <span className="brand-sub" lang="ml">
-              അക്ഷരം · a little, every day
+              അക്ഷരം
             </span>
           </span>
         </Link>
-        <div className="nav-label">YOUR LEARNING SPACE</div>
+
         <nav aria-label="Main navigation">
           {nav.map((n) => (
             <Link
@@ -57,18 +55,6 @@ function Layout({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
         <div className="sidebar-bottom">
-          <div className="little-note">
-            <Leaf size={21} />
-            <p>
-              A new script.
-              <br />A new way to see.
-            </p>
-            <span>
-              Your journey starts with
-              <br />
-              one letter.
-            </span>
-          </div>
           <Link
             href="/settings"
             className={`nav-item ${path === "/settings" ? "active" : ""}`}
@@ -76,23 +62,13 @@ function Layout({ children }: { children: React.ReactNode }) {
             <Settings size={18} />
             Settings & progress
           </Link>
-          <div className="profile">
-            <div className="avatar">Y</div>
-            <div>
-              Your learning journey<small>{total} letters practiced</small>
-            </div>
-            <ArrowUpRight size={16} />
-          </div>
+          <p className="sidebar-progress">{total} letters practiced</p>
         </div>
       </aside>
       <div className="content-shell">
-        <div className="topbar">
-          <span>MALAYALAM, ONE LETTER AT A TIME</span>
-          <span className="topbar-right">
-            <span className="status-dot" /> Made for the curious{" "}
-            <span lang="ml">നമസ്കാരം</span>
-          </span>
-        </div>
+        <Link href="/" className="mobile-brand">
+          Aksharam <span lang="ml">അക്ഷരം</span>
+        </Link>
         <main id="main">
           {error && (
             <div className="notice" role="alert">
@@ -104,12 +80,6 @@ function Layout({ children }: { children: React.ReactNode }) {
           )}
           {children}
         </main>
-        <footer>
-          <span>Small steps. A whole new alphabet.</span>
-          <span>
-            Made with care, for Malayalam <span lang="ml">മലയാളം</span>
-          </span>
-        </footer>
       </div>
       <nav className="mobile-nav" aria-label="Mobile navigation">
         {nav.map((n) => (
@@ -124,7 +94,12 @@ function Layout({ children }: { children: React.ReactNode }) {
             <span>{n.name === "Test yourself" ? "Test" : n.name}</span>
           </Link>
         ))}
-        <Link href="/settings" aria-label="Settings">
+        <Link
+          href="/settings"
+          aria-label="Settings"
+          aria-current={path === "/settings" ? "page" : undefined}
+          className={path === "/settings" ? "active" : ""}
+        >
           <Settings size={20} />
           <span>Settings</span>
         </Link>

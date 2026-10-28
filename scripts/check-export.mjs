@@ -38,6 +38,24 @@ for (const route of routes) {
   const html = await readFile(resolve(root, route, "index.html"), "utf8");
   const { document } = new JSDOM(html).window;
   assert.ok(document.querySelector("main"), `Missing page content: ${route}`);
+  const viewport =
+    document.querySelector('meta[name="viewport"]')?.getAttribute("content") ??
+    "";
+  assert.match(
+    viewport,
+    /width=device-width/,
+    `Missing device viewport: ${route}`,
+  );
+  assert.match(
+    viewport,
+    /viewport-fit=cover/,
+    `Missing safe-area viewport: ${route}`,
+  );
+  assert.doesNotMatch(
+    viewport,
+    /user-scalable=no|maximum-scale=1(?:,|$)/,
+    `Pinch zoom disabled: ${route}`,
+  );
   for (const node of document.querySelectorAll(
     "a[href],script[src],link[href],img[src],source[src],audio[src]",
   )) {
