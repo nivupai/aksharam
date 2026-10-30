@@ -38,6 +38,15 @@ for (const route of routes) {
   const html = await readFile(resolve(root, route, "index.html"), "utf8");
   const { document } = new JSDOM(html).window;
   assert.ok(document.querySelector("main"), `Missing page content: ${route}`);
+  const appearance = document.head.querySelector("script#appearance-init");
+  assert.ok(
+    appearance?.textContent?.includes("aksharam.appearance.v1"),
+    `Missing early appearance script: ${route}`,
+  );
+  assert.ok(
+    appearance.textContent.includes("prefers-color-scheme"),
+    `Missing System appearance bootstrap: ${route}`,
+  );
   const viewport =
     document.querySelector('meta[name="viewport"]')?.getAttribute("content") ??
     "";

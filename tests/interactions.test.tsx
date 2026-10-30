@@ -106,23 +106,24 @@ describe("learning interactions", () => {
       JSON.parse(localStorage.getItem(STORAGE_KEY)!).attempts,
     ).toHaveLength(5);
   });
-  it("reintroduces a missed lesson letter after the initial recognition and recall rounds", async () => {
+  it("retries a missed new-letter question once", async () => {
     render(
       <ProgressProvider>
         <Practice lesson />
       </ProgressProvider>,
     );
-    await userEvent.click(screen.getByRole("button", { name: "Begin lesson" }));
-    for (let i = 0; i < 5; i++)
-      await userEvent.click(
-        screen.getByRole("button", { name: /Continue to next letter/ }),
-      );
+    await userEvent.click(
+      screen.getByRole("button", { name: "Start learning" }),
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "Practice this letter" }),
+    );
     const wrong = screen
       .getAllByRole("button")
       .filter((b) => b.classList.contains("answer-option"))
       .find((b) => !b.textContent?.endsWith("a"))!;
     await userEvent.click(wrong);
     expect(screen.getByRole("status")).toHaveTextContent("Incorrect");
-    expect(screen.getByText(/Step 6 of 16/)).toBeInTheDocument();
+    expect(screen.getByText(/Step 2 of 11/)).toBeInTheDocument();
   });
 });

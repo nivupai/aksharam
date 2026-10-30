@@ -7,17 +7,21 @@ export function Results({
   onRetry,
   onRestart,
   lesson = false,
+  sessionTitle,
 }: {
   answers: Answer[];
   onRetry: () => void;
   onRestart: () => void;
   lesson?: boolean;
+  sessionTitle?: string;
 }) {
   const incorrect = answers.filter((a) => !a.correct);
   return (
     <div className="results">
       <div className="results-header panel">
-        <h2>{lesson ? "Lesson results" : "Test results"}</h2>
+        <h2>
+          {lesson ? `${sessionTitle ?? "Learn"} results` : "Test results"}
+        </h2>
         <div className="result-score">
           {score(answers)}
           <span>%</span>
@@ -34,11 +38,18 @@ export function Results({
             </button>
           )}
           <button className="button secondary" onClick={onRestart}>
-            Start a new {lesson ? "lesson" : "test"} <ArrowRight size={17} />
+            {lesson ? "Start another session" : "Start a new test"}{" "}
+            <ArrowRight size={17} />
           </button>
-          <Link href="/" className="text-link">
-            Back to overview
-          </Link>
+          {lesson ? (
+            <button className="text-link" onClick={onRestart}>
+              Back to Learn
+            </button>
+          ) : (
+            <Link href="/" className="text-link">
+              Back to overview
+            </Link>
+          )}
         </div>
       </div>
       <div className="results-breakdown panel">

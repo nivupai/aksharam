@@ -31,11 +31,12 @@ The development and build scripts use Next.js's supported `--webpack` flag becau
 
 - **Overview:** introduced and mastered cards, due reviews, quiz accuracy, local-calendar streak, collection progress, configurable daily goal, and resume learning.
 - **Flashcards:** six collections, all cards, custom review, ordered/shuffled cards, previous/next, animated front/back, reversed study direction, bookmarks, rating persistence, and honest audio availability. Core forms appear by default; uncommon and historical forms can be included.
-- **Learn:** default batches of five, reading introductions, recognition then reverse recall, same-category distractors, explanations, due-card priority, and a second attempt for missed questions. A lesson may add one retry per missed initial question. Reading alone does not mark a letter mastered.
+- **Learn:** new, learned-review, and difficult-letter modes with actual counts, collection filters, and 1–20 letters per session (default 5). New sessions exclude introduced letters. Reviews prioritize due cards, with an explicit option to include all learned letters. Difficult practice uses mistakes, lapses, and ratings. Each letter gets one scored question and an optional retry after an incorrect answer.
 - **Test:** category, number of distinct questions, recognition/reverse/typing types, feedback, score, per-category breakdown, answer explanations, and retrying the unique missed letters. Scores include retry attempts. Tests use core entries.
 - **Alphabet:** all 109 entries, collection filters, Unicode-aware search, native modal details, pronunciation distinctions, code points, bookmarks, and sources. Search preserves meaningful diacritics; use `ṇa` to find the retroflex nasal, or search “retroflex”.
-- **Settings:** daily goal, lesson size, validated JSON export/import, confirmation before replacing progress or resetting it, and scheduler documentation.
-- Responsive desktop sidebar and mobile bottom navigation, visible keyboard focus, native controls, reduced-motion support, and self-hosted Latin/Malayalam fonts.
+- **Appearance:** Light, Dark, and System preferences with navigation controls, Settings selection, OS-change listening, local persistence, and early theme initialization on every exported route.
+- **Settings:** appearance, daily goal, lesson size, validated JSON export/import, confirmation before replacing progress or resetting it, and scheduler documentation.
+- Responsive desktop sidebar and mobile bottom navigation, visible keyboard focus, native controls, reduced-motion support, and Georgia-style Latin typography and a self-hosted Malayalam font.
 
 ### Keyboard controls
 
@@ -88,7 +89,7 @@ All learner data lives in LocalStorage under `aksharam.progress.v1`:
 - per-card last/next review times, interval in days, lapses, success streak, full rating history;
 - scored quiz attempts, local study dates, and preferences.
 
-Hydration reads storage after the initial render to avoid server/client mismatches. Storage errors are surfaced with an export recommendation. Invalid or stale schemas recover to a fresh session. Imports enforce known IDs, metadata, finite nonnegative review fields, chronology, supported version, preferences ranges, and a 10 MB maximum. Imports replace rather than merge. Export before importing or resetting if needed. Progress is browser-local and not synchronized across tabs/devices; JSON is the transfer mechanism.
+Hydration reads storage after the initial render to avoid server/client mismatches. Storage errors are surfaced with an export recommendation. Invalid or unknown schemas are preserved unchanged while a temporary in-memory session runs. Valid v1 data can recover missing introduced IDs from existing reviews and answers without changing schedules or history. Imports enforce known IDs, metadata, finite nonnegative review fields, chronology, supported version, preferences ranges, and a 10 MB maximum. Imports replace rather than merge. Export before importing or resetting if needed. Progress is browser-local and not synchronized across tabs/devices; JSON is the transfer mechanism.
 
 The **deterministic lightweight scheduler** is not SM-2 or FSRS:
 
@@ -101,7 +102,7 @@ The **deterministic lightweight scheduler** is not SM-2 or FSRS:
 
 A card is mastered only after **3 consecutive Good/Easy ratings and an interval of at least 7 days**. Correct quiz answers schedule Good; incorrect answers schedule Again. Self-ratings do not contribute to quiz accuracy. Dashboard daily activity counts ratings and answered quiz questions, including repeated practice of a card. Reading introductions alone do not count as a practice day. Streaks use the learner's local calendar, including yesterday if today has not yet been practiced.
 
-Custom Review freezes the due/bookmarked set when a flashcard session opens, ordered by due date, so rating a card does not make it disappear mid-flip. Reopen the session to refresh the set; enable uncommon forms if reviewing them. Lessons prioritize due cards, then unreviewed cards, then scheduled cards. Review times are refreshed on window focus and every 30 seconds on the dashboard.
+Custom Review freezes the due/bookmarked set when a flashcard session opens, ordered by due date, so rating a card does not make it disappear mid-flip. Reopen the session to refresh the set; enable uncommon forms if reviewing them. Learn new excludes encountered letters. Review learned prioritizes due cards; future and unscheduled learned cards require the explicit all-learned option. Review times are refreshed on window focus and every 30 seconds on the dashboard.
 
 ## Architecture
 
@@ -123,7 +124,7 @@ UI and linguistic data are separate. The pure progress functions and shared prov
 
 Automated checks cover dataset metadata and Unicode, dental/retroflex separation, atomic chillus and graphemes, scheduling and mastery, local-calendar streaks, valid/corrupt/blocked storage, import validation, scoring and accent normalization, card flip, keyboard rating persistence after hydration, quiz completion, and missed-letter reintroduction.
 
-Validation: 27 tests pass; lint, strict TypeScript checks, production static export, and the HTTP export check pass. Deployment tests cover the shared base path, future audio URLs, and restoring ratings, bookmarks, and preferences after the provider remounts. Visual verification of this refinement in mobile browsers remains pending because Chrome automation was interrupted. See [mobile refinement verification](docs/MOBILE_REVIEW.md) for implementation details, automation limits, and the viewport/device checklist.
+Validation: 56 tests pass; lint, strict TypeScript checks, production static export, and the HTTP export check pass. Deployment tests cover the shared base path, future audio URLs, and restoring ratings, bookmarks, and preferences after the provider remounts. Visual verification of this refinement in mobile browsers remains pending because Chrome automation was interrupted. See [mobile refinement verification](docs/MOBILE_REVIEW.md) for implementation details, automation limits, and the viewport/device checklist.
 
 Manual smoke checklist:
 
@@ -140,7 +141,7 @@ Manual smoke checklist:
 
 Target repository: **`nivupai/aksharam`**, branch **`main`**. Target URL: **https://nivupai.github.io/aksharam/**. This is a project Pages site: do not change the separate `nivupai.github.io` repository, and do not add a `CNAME` file for this deployment.
 
-The local deployment configuration is ready. **No remote push, GitHub Actions run, or public deployment has been verified.** The GitHub connector returned 404 for this repository and the CLI login was invalid during setup. At the user's request, setup was completed locally and the remote steps are provided below.
+Deployment is managed by `.github/workflows/deploy.yml`. Pushes to `main` run checks, export the app, and deploy it to GitHub Pages. Check the repository’s Actions tab for the status of each deployment. The setup instructions below also apply to a fresh checkout or a new repository.
 
 ### Repository setup
 
@@ -246,4 +247,6 @@ The unchanged LocalStorage key is **`aksharam.progress.v1`**. It is not based on
 
 `localhost` and `https://nivupai.github.io` are different origins: export from local Settings and import on the deployed site to transfer existing progress. Merely changing the local base path does not change the origin or storage key, so local progress is preserved.
 
-Future improvements: educator-reviewed example vocabulary, licensed native-speaker recordings, a dedicated handwriting course with verified stroke guidance, a full mobile browser QA pass, optional cross-device sync, and an explicitly implemented offline strategy. Dark mode and handwriting are not included in v1.
+Future improvements: educator-reviewed example vocabulary, licensed native-speaker recordings, a dedicated handwriting course with verified stroke guidance, a full mobile browser QA pass, optional cross-device sync, and an explicitly implemented offline strategy. Light/Dark/System appearance is implemented; handwriting is not included.
+
+See [appearance and Learn modes](docs/APPEARANCE_AND_LEARN.md) for selection rules, progress compatibility, changed files, and local verification instructions.

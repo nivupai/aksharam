@@ -34,6 +34,7 @@ const Context = createContext<Store | null>(null);
 export function ProgressProvider({ children }: { children: ReactNode }) {
   const [progress, setProgress] = useState<Progress>(emptyProgress);
   const [ready, setReady] = useState(false);
+  const [writable, setWritable] = useState(false);
   const [now, setNow] = useState(0);
   const [error, setError] = useState("");
   useEffect(() => {
@@ -41,6 +42,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       const loaded = loadProgress(window.localStorage);
       setProgress(loaded.progress);
       setError(loaded.error ?? "");
+      setWritable(!loaded.readOnly);
     } catch {
       setError(
         "Browser storage is unavailable. You can study in this tab and export a backup in Settings.",
@@ -50,7 +52,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     setReady(true);
   }, []); // Hydrate only after the server and initial client renders agree.
   useEffect(() => {
-    if (ready)
+    if (ready && writable)
       try {
         saveProgress(window.localStorage, progress);
       } catch {
@@ -58,7 +60,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
           "Your browser could not save progress. Export a backup before closing this tab.",
         );
       }
-  }, [progress, ready]);
+  }, [progress, ready, writable]);
   useEffect(() => {
     const tick = () => setNow(Date.now());
     const timer = window.setInterval(tick, 30000);
@@ -121,7 +123,11 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         introduce,
         answer,
         favorite,
-        replace: setProgress,
+        replace: (p) => {
+          setError("");
+          setWritable(true);
+          setProgress(p);
+        },
         preferences: (p) =>
           setProgress((old) => ({
             ...old,

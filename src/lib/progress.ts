@@ -94,7 +94,7 @@ export function parseProgress(raw: string): Progress {
     p.version !== 1 ||
     !record(p.cards) ||
     !ids(p.favorites) ||
-    !ids(p.introduced) ||
+    (p.introduced !== undefined && !ids(p.introduced)) ||
     !Array.isArray(p.attempts) ||
     !Array.isArray(p.studyDays) ||
     !record(p.preferences)
@@ -113,7 +113,6 @@ export function parseProgress(raw: string): Progress {
   for (const [id, c] of Object.entries(p.cards)) {
     if (
       !Object.hasOwn(letterById, id) ||
-      !p.introduced.includes(id) ||
       !record(c) ||
       ![
         "lastReviewed",
@@ -165,7 +164,15 @@ export function parseProgress(raw: string): Progress {
     version: 1,
     cards: p.cards as Progress["cards"],
     favorites: p.favorites,
-    introduced: p.introduced,
+    // Additive v1 compatibility repair: explicit study evidence implies introduced.
+    // Preserve every existing ID and every review/attempt field; never reschedule.
+    introduced: Array.from(
+      new Set([
+        ...((p.introduced ?? []) as string[]),
+        ...Object.keys(p.cards),
+        ...(p.attempts as Progress["attempts"]).map((a) => a.cardId),
+      ]),
+    ),
     attempts: p.attempts as Progress["attempts"],
     studyDays: p.studyDays as string[],
     preferences: {
@@ -177,6 +184,7 @@ export function parseProgress(raw: string): Progress {
 export function loadProgress(storage: Pick<Storage, "getItem">): {
   progress: Progress;
   error?: string;
+  readOnly?: boolean;
 } {
   try {
     const raw = storage.getItem(STORAGE_KEY);
@@ -184,8 +192,9 @@ export function loadProgress(storage: Pick<Storage, "getItem">): {
   } catch {
     return {
       progress: emptyProgress(),
+      readOnly: true,
       error:
-        "Saved progress could not be read. A fresh session has been opened; you can restore a valid export in Settings.",
+        "Saved progress could not be read and has been left unchanged. This session is temporary. Export a backup or restore a valid file in Settings.",
     };
   }
 }

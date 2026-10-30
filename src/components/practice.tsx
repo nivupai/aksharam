@@ -1,13 +1,11 @@
 "use client";
 import { useState } from "react";
-import { ArrowRight, BookOpen, Check, Layers } from "lucide-react";
-import { categories, coreLetters, letterById } from "@/data/alphabet";
+import { ArrowRight, Check } from "lucide-react";
+import { coreLetters, letterById } from "@/data/alphabet";
 import { useProgress } from "@/hooks/use-progress";
-import { mastered } from "@/lib/progress";
 import {
   makeQuestion,
   shuffled,
-  type Question,
   type QuestionType,
   type Answer,
 } from "@/lib/quiz";
@@ -17,60 +15,73 @@ import { DeckSelector } from "./deck-selector";
 import { QuizQuestion } from "./quiz-question";
 import { Results } from "./results";
 import { AudioButton } from "./audio-button";
-type Step =
-  | { kind: "read"; letter: Letter }
-  | { kind: "question"; question: Question; retry?: boolean };
+import { LearnSetup } from "./learn-setup";
+import {
+  learnModes,
+  learnSteps,
+  selectLearnLetters,
+  type LearnMode,
+  type LearnDeck,
+  type StudyStep,
+} from "@/lib/learn";
 export function Practice({ lesson = false }: { lesson?: boolean }) {
-  const { progress, answer, introduce } = useProgress();
-  const suggested = categories.find((c) =>
-    coreLetters.some(
-      (l) => l.category === c.id && !mastered(progress.cards[l.id]),
-    ),
+  const { ready } = useProgress();
+  return ready ? (
+    <PracticeSession lesson={lesson} />
+  ) : (
+    <p role="status">Loading progress…</p>
   );
-  const [deck, setDeck] = useState<Deck>(suggested?.id ?? "vowels");
-  const [count, setCount] = useState(10);
+}
+function PracticeSession({ lesson }: { lesson: boolean }) {
+  const { progress, answer, introduce, now } = useProgress();
+  const [deck, setDeck] = useState<Deck>(lesson ? "all" : "vowels");
+  const [count, setCount] = useState(
+    lesson ? progress.preferences.lessonSize : 10,
+  );
+  const [mode, setMode] = useState<LearnMode>("new");
+  const [includeNotDue, setIncludeNotDue] = useState(false);
+  const [sessionTitle, setSessionTitle] = useState(
+    lesson ? "Learn new letters" : "Test",
+  );
+  const [sessionCount, setSessionCount] = useState(0);
   const [types, setTypes] = useState<QuestionType[]>([
     "recognition",
     "reverse",
   ]);
-  const [steps, setSteps] = useState<Step[]>([]);
+  const [steps, setSteps] = useState<StudyStep[]>([]);
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [phase, setPhase] = useState<"setup" | "session" | "results">("setup");
   function start(custom?: Letter[]) {
-    let pool = coreLetters.filter((l) => deck === "all" || l.category === deck);
-    let chosen: Letter[];
-    if (custom) chosen = custom;
-    else if (lesson) {
-      pool = pool.sort((a, b) => {
-        const ap = progress.cards[a.id];
-        const bp = progress.cards[b.id];
-        const priority = (p: typeof ap) =>
-          !p ? 1 : p.nextReview <= Date.now() ? 0 : 2;
-        return priority(ap) - priority(bp);
-      });
-      chosen = pool.slice(0, progress.preferences.lessonSize);
-    } else chosen = shuffled(pool).slice(0, count);
-    const next: Step[] =
+    const chosen =
+      custom ??
+      (lesson
+        ? selectLearnLetters(
+            progress,
+            Date.now(),
+            mode,
+            count,
+            deck as LearnDeck,
+            includeNotDue,
+          )
+        : shuffled(
+            coreLetters.filter((l) => deck === "all" || l.category === deck),
+          ).slice(0, count));
+    if (!chosen.length || (!lesson && !types.length)) return;
+    const next: StudyStep[] =
       lesson && !custom
-        ? [
-            ...chosen.map((letter) => ({ kind: "read" as const, letter })),
-            ...chosen.map((letter) => ({
-              kind: "question" as const,
-              question: makeQuestion(letter, "recognition"),
-            })),
-            ...shuffled(chosen).map((letter) => ({
-              kind: "question" as const,
-              question: makeQuestion(letter, "reverse"),
-            })),
-          ]
+        ? learnSteps(chosen, mode)
         : chosen.map((letter, i) => ({
-            kind: "question" as const,
+            kind: "question",
             question: makeQuestion(
               letter,
               lesson ? "recognition" : types[i % types.length],
             ),
           }));
+    setSessionTitle(
+      `${lesson ? learnModes.find((m) => m.id === mode)!.title : "Test"}${custom ? " · Retry" : ""}`,
+    );
+    setSessionCount(chosen.length);
     setSteps(next);
     setIndex(0);
     setAnswers([]);
@@ -105,22 +116,32 @@ export function Practice({ lesson = false }: { lesson?: boolean }) {
         title={lesson ? "Learn" : "Test"}
         description={
           lesson
-            ? "Read each letter, then answer recognition and recall questions."
+            ? "Choose new letters, scheduled reviews, or difficult-letter practice."
             : "Choose question types. No Malayalam keyboard is required."
         }
       />
-      {phase === "setup" ? (
-        <div className="practice-setup">
+      {phase === "setup" && lesson ? (
+        <LearnSetup
+          progress={progress}
+          now={now}
+          mode={mode}
+          setMode={setMode}
+          deck={deck as LearnDeck}
+          setDeck={setDeck}
+          count={count}
+          setCount={setCount}
+          includeNotDue={includeNotDue}
+          setIncludeNotDue={setIncludeNotDue}
+          onStart={() => start()}
+        />
+      ) : phase === "setup" ? (
+        <div className="test-setup">
           <section className="panel setup-panel">
-            <div className={`setup-icon ${lesson ? "sage" : "peach"}`}>
-              {lesson ? <BookOpen size={28} /> : <Check size={28} />}
+            <div className="setup-icon peach">
+              <Check size={28} />
             </div>
-            <h2>{lesson ? "Lesson setup" : "Test setup"}</h2>
-            <p>
-              {lesson
-                ? `Up to ${progress.preferences.lessonSize} letters. Reading, recognition, and recall. Due reviews come first.`
-                : "Choose a collection, question count, and question types."}
-            </p>
+            <h2>Test setup</h2>
+            <p>Choose a collection, question count, and question types.</p>
             <DeckSelector value={deck} onChange={setDeck} review={false} />
             {!lesson && (
               <>
@@ -201,42 +222,11 @@ export function Practice({ lesson = false }: { lesson?: boolean }) {
               <ArrowRight size={18} />
             </button>
           </section>
-          <aside>
-            <div className="panel learning-path">
-              <div className="section-caption">LESSON ORDER</div>
-              <h3>Collections</h3>
-              {categories.map((c, i) => (
-                <button
-                  className={deck === c.id ? "path-step current" : "path-step"}
-                  key={c.id}
-                  onClick={() => setDeck(c.id)}
-                >
-                  <span className="path-number">{i + 1}</span>
-                  <span>
-                    <strong>{c.name}</strong>
-                    <small>{c.description}</small>
-                  </span>
-                  {coreLetters
-                    .filter((l) => l.category === c.id)
-                    .every((l) => mastered(progress.cards[l.id])) && (
-                    <Check size={18} />
-                  )}
-                </button>
-              ))}
-            </div>
-            <div className="gentle-note">
-              <Layers size={20} />
-              <p>
-                {lesson
-                  ? "Reading comes first. Then recognition and recall. Missed letters return once more before the lesson ends."
-                  : "Results include explanations and a retry option for missed letters."}
-              </p>
-            </div>
-          </aside>
         </div>
       ) : phase === "results" ? (
         <Results
           lesson={lesson}
+          sessionTitle={sessionTitle}
           answers={answers}
           onRestart={() => setPhase("setup")}
           onRetry={() =>
@@ -265,10 +255,12 @@ export function Practice({ lesson = false }: { lesson?: boolean }) {
                   setPhase("setup");
               }}
             >
-              End session
+              {lesson ? "Back to Learn" : "End session"}
             </button>
             <span>
-              {lesson ? "LESSON" : "TEST"} · Step {index + 1} of {steps.length}
+              {sessionTitle} · {sessionCount}{" "}
+              {sessionCount === 1 ? "letter" : "letters"} · Step {index + 1} of{" "}
+              {steps.length}
             </span>
           </div>
           <ProgressBar
@@ -277,7 +269,7 @@ export function Practice({ lesson = false }: { lesson?: boolean }) {
           />
           {step?.kind === "read" ? (
             <div className="panel reading-card" key={index}>
-              <span className="eyebrow">READ THE LETTER</span>
+              <span className="eyebrow">NEW LETTER · {step.letter.usage}</span>
               <span className="reading-glyph" lang="ml">
                 {step.letter.display}
               </span>
@@ -294,7 +286,7 @@ export function Practice({ lesson = false }: { lesson?: boolean }) {
                   next();
                 }}
               >
-                Continue to next letter <ArrowRight size={18} />
+                Practice this letter <ArrowRight size={18} />
               </button>
             </div>
           ) : step?.kind === "question" ? (

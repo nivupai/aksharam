@@ -11,6 +11,9 @@ import {
   X,
 } from "lucide-react";
 import { ProgressProvider, useProgress } from "@/hooks/use-progress";
+import { AppearanceProvider } from "@/hooks/use-appearance";
+import { ThemeToggle } from "./appearance";
+import { Backwaters } from "./kerala-motifs";
 const nav = [
   { href: "/", name: "Overview", icon: LayoutDashboard },
   { href: "/flashcards", name: "Flashcards", icon: Layers },
@@ -55,6 +58,8 @@ function Layout({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
         <div className="sidebar-bottom">
+          <Backwaters className="sidebar-backwaters" />
+          <ThemeToggle />
           <Link
             href="/settings"
             className={`nav-item ${path === "/settings" ? "active" : ""}`}
@@ -66,9 +71,12 @@ function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
       <div className="content-shell">
-        <Link href="/" className="mobile-brand">
-          Aksharam <span lang="ml">അക്ഷരം</span>
-        </Link>
+        <div className="mobile-header">
+          <Link href="/" className="mobile-brand">
+            Aksharam <span lang="ml">അക്ഷരം</span>
+          </Link>
+          <ThemeToggle />
+        </div>
         <main id="main">
           {error && (
             <div className="notice" role="alert">
@@ -109,8 +117,10 @@ function Layout({ children }: { children: React.ReactNode }) {
 }
 export function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <ProgressProvider>
-      <Layout>{children}</Layout>
-    </ProgressProvider>
+    <AppearanceProvider>
+      <ProgressProvider>
+        <Layout>{children}</Layout>
+      </ProgressProvider>
+    </AppearanceProvider>
   );
 }

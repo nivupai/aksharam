@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Shell } from "@/components/shell";
 import "./globals.css";
+import { appearanceScript } from "@/lib/appearance";
 export const metadata: Metadata = {
   title: {
     default: "Aksharam · Malayalam alphabet",
@@ -21,7 +22,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          id="appearance-init"
+          dangerouslySetInnerHTML={{ __html: appearanceScript }}
+        />
+      </head>
       <body>
         <Shell>{children}</Shell>
       </body>

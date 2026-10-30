@@ -11,6 +11,7 @@ import {
 import { useProgress } from "@/hooks/use-progress";
 import { emptyProgress, parseProgress } from "@/lib/progress";
 import { PageHeading } from "@/components/ui";
+import { AppearanceSettings } from "@/components/appearance";
 export default function SettingsPage() {
   const { progress, preferences, replace } = useProgress();
   const [status, setStatus] = useState("");
@@ -56,6 +57,7 @@ export default function SettingsPage() {
     <>
       <PageHeading title="Settings" />
       <div className="settings-grid">
+        <AppearanceSettings />
         <section className="panel settings-panel">
           <div className="settings-title">
             <Settings size={22} />
@@ -87,9 +89,7 @@ export default function SettingsPage() {
           <label className="setting-row" htmlFor="lesson-size">
             <span>
               <strong>Letters per lesson</strong>
-              <small>
-                Each letter gets a reading, recognition, and recall step.
-              </small>
+              <small>Default number of letters for a Learn session.</small>
             </span>
             <select
               id="lesson-size"
