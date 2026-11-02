@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Check, ArrowRight, X } from "lucide-react";
 import { isCorrect, type Question } from "@/lib/quiz";
 export function QuizQuestion({
@@ -17,6 +17,7 @@ export function QuizQuestion({
 }) {
   const [response, setResponse] = useState<string | null>(null);
   const [typed, setTyped] = useState("");
+  const feedbackId = useId();
   const correct = response !== null && isCorrect(question, response);
   function submit(value: string) {
     if (response !== null) return;
@@ -24,7 +25,9 @@ export function QuizQuestion({
     onAnswer(value, isCorrect(question, value));
   }
   return (
-    <div className="quiz-panel panel">
+    <div
+      className={`quiz-panel panel${response !== null ? " quiz-answered" : ""}`}
+    >
       <div className="quiz-kicker">
         <span>
           {question.type === "reverse"
@@ -107,23 +110,36 @@ export function QuizQuestion({
         </div>
       )}
       {response !== null && (
-        <div
-          className={`answer-feedback ${correct ? "correct" : "incorrect"}`}
-          role="status"
-        >
-          <div>
-            {correct ? <Check size={21} /> : <X size={21} />}
-            <strong>{correct ? "Correct" : "Incorrect"}</strong>
+        <div className="answer-dock">
+          <div
+            className={`answer-feedback ${correct ? "correct" : "incorrect"}`}
+          >
+            <div className="answer-feedback-copy" role="status" id={feedbackId}>
+              <div className="answer-feedback-result">
+                {correct ? <Check size={21} /> : <X size={21} />}
+                <strong>{correct ? "Correct" : "Incorrect"}</strong>
+              </div>
+              <p>
+                <strong>
+                  <span lang="ml">{question.letter.glyph}</span> ·{" "}
+                  {question.letter.romanization}
+                </strong>{" "}
+                — {question.letter.note}
+              </p>
+            </div>
+            <button
+              className="button primary"
+              aria-describedby={feedbackId}
+              ref={(button) => {
+                // Move keyboard focus out of disabled answers without scrolling
+                // the page; this also dismisses the typing keyboard on phones.
+                button?.focus({ preventScroll: true });
+              }}
+              onClick={onNext}
+            >
+              Continue <ArrowRight size={17} />
+            </button>
           </div>
-          <p>
-            <strong>
-              {question.letter.glyph} · {question.letter.romanization}
-            </strong>{" "}
-            — {question.letter.note}
-          </p>
-          <button className="button primary" onClick={onNext}>
-            Continue <ArrowRight size={17} />
-          </button>
         </div>
       )}
     </div>

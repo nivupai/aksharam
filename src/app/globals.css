@@ -1202,16 +1202,43 @@ input[type="checkbox"] {
   border-color: var(--incorrect-border);
   opacity: 1;
 }
+.quiz-answered {
+  /* Leave room to scroll the disabled choices clear of the feedback dock. */
+  padding-bottom: calc(min(40dvh, 280px) + 24px);
+}
+.answer-dock {
+  position: fixed;
+  z-index: 24;
+  inset: auto 0 calc(var(--mobile-nav-height) + env(safe-area-inset-bottom));
+  padding: 8px max(12px, env(safe-area-inset-right)) 12px
+    max(12px, env(safe-area-inset-left));
+  pointer-events: none;
+}
 .answer-feedback {
-  margin-top: 20px;
-  padding: 18px;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 12px;
+  max-width: 780px;
+  max-height: min(40dvh, 280px);
+  margin: 0 auto;
+  padding: 16px;
+  pointer-events: auto;
   background: var(--correct-bg);
+  border: 1px solid var(--correct-border);
   border-radius: 10px;
+  box-shadow: 0 4px 24px #0003;
 }
 .answer-feedback.incorrect {
   background: var(--incorrect-bg);
+  border-color: var(--incorrect-border);
 }
-.answer-feedback > div {
+.answer-feedback-copy {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  overflow-wrap: anywhere;
+}
+.answer-feedback-result {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1220,7 +1247,17 @@ input[type="checkbox"] {
 .answer-feedback p {
   font-size: 14px;
   color: var(--muted);
-  margin: 12px 0 16px;
+  margin: 8px 0 0;
+}
+.answer-feedback > .button {
+  width: 100%;
+  min-height: 44px;
+}
+@media (min-width: 1024px) {
+  .answer-dock {
+    left: 230px;
+    bottom: env(safe-area-inset-bottom);
+  }
 }
 .typing-label {
   display: block;

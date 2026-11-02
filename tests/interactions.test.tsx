@@ -41,11 +41,43 @@ describe("learning interactions", () => {
     const option = screen
       .getAllByRole("button")
       .find((b) => b.textContent?.endsWith(q.letter.romanization))!;
+    expect(
+      screen.queryByRole("button", { name: /Continue/ }),
+    ).not.toBeInTheDocument();
     await userEvent.click(option);
     expect(answer).toHaveBeenCalledWith(q.letter.id, true);
     expect(screen.getByRole("status")).toHaveTextContent("Correct");
     expect(option).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Continue/ })).toHaveFocus();
+    expect(
+      screen.getByRole("button", { name: /Continue/ }),
+    ).toHaveAccessibleDescription(expect.stringContaining(q.letter.note));
     await userEvent.click(screen.getByRole("button", { name: /Continue/ }));
+    expect(next).toHaveBeenCalledOnce();
+  });
+  it("keeps incorrect typed-answer feedback available and supports keyboard continuation", async () => {
+    const answer = vi.fn();
+    const next = vi.fn();
+    const q = makeQuestion(letters[0], "typing", () => 0.5);
+    render(
+      <QuizQuestion
+        question={q}
+        onAnswer={answer}
+        onNext={next}
+        number={1}
+        total={2}
+      />,
+    );
+    await userEvent.type(
+      screen.getByLabelText("Your romanization"),
+      "wrong{Enter}",
+    );
+    expect(answer).toHaveBeenCalledWith("wrong", false);
+    expect(screen.getByRole("status")).toHaveTextContent("Incorrect");
+    expect(screen.getByRole("status")).toHaveTextContent(q.letter.romanization);
+    expect(screen.getByRole("button", { name: /Continue/ })).toHaveFocus();
+    expect(screen.getByLabelText("Your romanization")).toBeDisabled();
+    await userEvent.keyboard("{Enter}");
     expect(next).toHaveBeenCalledOnce();
   });
   it("hydrates a due review before freezing the deck, flips using space and persists ratings", async () => {

@@ -35,7 +35,7 @@ For each viewport:
 2. Check Overview: study actions and due-card count appear before statistics and the collection grid fits the screen.
 3. On Flashcards, flip the longest note, enable uncommon forms, and inspect consonants, dependent signs, and conjuncts. Swipe horizontally and vertically. Verify a swipe changes one card and does not flip it; vertical scrolling and pinch zoom still work.
 4. Tap every study control, bookmark a letter, rate it, and refresh. Verify progress persists. Use Space, arrows, and 1–4 with the keyboard.
-5. Complete a lesson/test with a wrong answer, inspect feedback and results, and retry misses. Ensure full-width phone answers and result buttons remain visible while scrolling.
+5. Complete a lesson/test with correct and wrong answers, inspect feedback and results, and retry misses. After every answer, confirm the fixed feedback panel and Continue button are visible without scrolling the page. On phones and iPads the panel sits above bottom navigation; on desktop it clears the sidebar. Try a long explanation and phone landscape: only the explanation should scroll within the panel, with Continue still visible. Check typed answers too, including dismissal of the keyboard and Enter to continue.
 6. Search and clear Reference, use filters, open letter details, scroll the dialog, close it with its button and Escape, and confirm focus returns to the selected entry.
 7. Focus search/typing inputs on Safari and confirm no automatic page zoom. Open native selects and Settings confirmation dialogs; cancel destructive actions during verification.
 8. Rotate a phone, reveal/hide browser chrome, enable reduced motion, and test VoiceOver/TalkBack focus order and card pronunciation descriptions.
