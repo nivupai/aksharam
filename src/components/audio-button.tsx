@@ -62,9 +62,11 @@ export function AudioButton({ letter }: { letter: Letter }) {
         onClick={play}
         aria-label={available ? "Play pronunciation" : "Audio unavailable"}
         title={
-          available
-            ? "Browser Malayalam voice; pronunciation quality may vary"
-            : "No recording or Malayalam browser voice available"
+          letter.audioUrl
+            ? "Recorded pronunciation"
+            : available
+              ? "Browser Malayalam voice; pronunciation quality may vary"
+              : "No recording or Malayalam browser voice available"
         }
       >
         {available ? <Volume2 size={19} /> : <VolumeX size={19} />}
