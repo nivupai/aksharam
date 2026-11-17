@@ -545,6 +545,57 @@ const conjunctRows: Row[] = [
     "ശ + ് + ര. A common Sanskrit-derived combination.",
   ],
 ];
+// Native-speaker recordings in public/audio, keyed by category and glyph.
+// Cleaned (high-pass, light noise gate, silence trim, loudness-matched) from
+// the original takes; see public/audio/README.md.
+const recordings: Partial<Record<Category, Record<string, string>>> = {
+  vowels: {
+    അ: "a",
+    ആ: "aa",
+    ഇ: "i",
+    ഈ: "ii",
+    ഉ: "u",
+    ഊ: "uu",
+    എ: "e",
+    ഏ: "ee",
+    ഐ: "ai",
+    ഒ: "o",
+    ഓ: "oo",
+    ഔ: "au",
+  },
+  consonants: {
+    ക: "ka",
+    ഖ: "kha",
+    ഗ: "ga",
+    ഘ: "gha",
+    ങ: "nga",
+    ച: "ca",
+    ഛ: "cha",
+    ജ: "ja",
+    ഝ: "jha",
+    ഞ: "nya",
+    ഠ: "ttha",
+    ഡ: "dda",
+    ഢ: "ddha",
+    ണ: "nna",
+    ഥ: "tha",
+    ദ: "da",
+    ധ: "dha",
+    ന: "na",
+    പ: "pa",
+    ഫ: "pha",
+    ബ: "ba",
+    ഭ: "bha",
+    മ: "ma",
+    യ: "ya",
+    ല: "la",
+    വ: "va",
+    ശ: "sha",
+    ഷ: "ssa",
+    സ: "sa",
+    ഹ: "ha",
+  },
+};
 function make(
   category: Category,
   rows: Row[],
@@ -563,6 +614,9 @@ function make(
       usage,
       subgroup: subgroup(i),
       order: i,
+      audioUrl: recordings[category]?.[glyph]
+        ? `/audio/${recordings[category]![glyph]}.m4a`
+        : undefined,
       display:
         category === "signs" ||
         (category === "special" && !["ഽ", "ഄ"].includes(glyph))

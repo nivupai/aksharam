@@ -77,7 +77,7 @@ English cues are intentionally approximate. Notes distinguish dental/retroflex s
 
 ### Audio and examples
 
-No native recordings or example words are bundled. This avoids claiming verification for unreviewed assets or vocabulary. The optional data fields support both later. Add licensed native recordings under `public/audio`, then set `audioUrl` for an entry. See `public/audio/README.md`.
+Recorded pronunciations are bundled for 12 independent vowels and 30 base consonants (`public/audio/*.m4a`, AAC mono). They are mapped in the `recordings` table in `src/data/alphabet.ts`, which sets each entry's `audioUrl`; cards with a recording show **Listen**. No example words are bundled yet. See `public/audio/README.md` for how the files were cleaned and how to add more.
 
 Web Speech is enabled **only** when an actual `ml`/`ml-*` Malayalam voice is present. Its button is explicitly labeled “Browser voice”; quality may vary and a language tag does not prove native-speaker accuracy. For signs it reads a consonant-plus-sign example. No English-voice fallback is used. Missing recordings show an unavailable state. Audio requires browser/device support and may require a connection for remote browser voices.
 
@@ -114,7 +114,7 @@ src/data/        Explicit typed Malayalam dataset and sources
 src/hooks/       Shared client progress provider
 src/lib/         Pure scheduling, storage validation, quiz logic
 src/types/       Dataset and persistence contracts
-public/audio/    Extension point for licensed native recordings
+public/audio/    Recorded letter pronunciations (.m4a)
  tests/          Dataset, scheduling, persistence, scoring, interactions
 ```
 

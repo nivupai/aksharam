@@ -177,3 +177,17 @@ describe("quiz scoring", () => {
     ).toBe(67);
   });
 });
+describe("bundled recordings", () => {
+  it("point at files that exist, and every file is used", async () => {
+    const { readdirSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const files = readdirSync(join(process.cwd(), "public/audio")).filter((f) =>
+      f.endsWith(".m4a"),
+    );
+    const urls = letters.flatMap((l) => (l.audioUrl ? [l.audioUrl] : []));
+    expect(new Set(urls).size).toBe(urls.length);
+    for (const url of urls) expect(files).toContain(url.replace("/audio/", ""));
+    expect(urls.length).toBe(files.length);
+    expect(letters.find((l) => l.glyph === "ക")?.audioUrl).toBe("/audio/ka.m4a");
+  });
+});
